@@ -9,79 +9,85 @@
             margin: 0;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: #000000;
             color: #ffffff;
             font-family: 'Inter', sans-serif;
             text-align: center;
-            cursor: pointer;
         }
-        #container { max-width: 80%; padding: 40px; }
+        #container { max-width: 80%; padding: 40px; cursor: pointer; }
         h1 { font-size: 2.2rem; font-weight: 400; line-height: 1.6; }
         p { font-size: 1rem; color: #666666; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 30px; }
         .fade-in { animation: fadeIn 0.8s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Small status indicator at the bottom */
+        #status {
+            position: fixed;
+            bottom: 20px;
+            font-size: 0.7rem;
+            color: #333;
+        }
     </style>
 </head>
 <body onclick="getQuote()">
 
-    <div id="container">
-        <h1 id="quote">"Loading..."</h1>
+    <div id="container" class="fade-in">
+        <h1 id="quote">Click to start...</h1>
         <p id="author"></p>
     </div>
 
-    <script>
-        // BACKUP LIST: Used if offline or no keywords found
-        const localQuotes = [
-            { q: "Discipline is the bridge between goals and accomplishment.", a: "Jim Rohn" },
-            { q: "Success is the sum of small efforts, repeated day-in and day-out.", a: "Robert Collier" },
-            { q: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", a: "Aristotle" },
-            { q: "The secret of your future is hidden in your daily routine.", a: "Mike Murdock" },
-            { q: "Hard work beats talent when talent doesn't work hard.", a: "Tim Notke" }
-        ];
+    <div id="status">Source: Local</div>
 
-        const keywords = ["discipline", "work", "success", "habit", "persist", "action", "do", "grit", "focus"];
+    <script>
+        const localQuotes = [
+            { content: "Discipline is the bridge between goals and accomplishment.", author: "Jim Rohn" },
+            { content: "Success is the sum of small efforts, repeated day-in and day-out.", author: "Robert Collier" },
+            { content: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" },
+            { content: "The only way to do great work is to love what you do.", author: "Steve Jobs" }
+        ];
 
         async function getQuote() {
             const quoteEl = document.getElementById('quote');
             const authorEl = document.getElementById('author');
-            const container = document.getElementById('container');
+            const statusEl = document.getElementById('status');
 
-            // 1. Check if we are online
-            if (navigator.onLine) {
-                try {
-                    const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://zenquotes.io/api/random'), { signal: AbortSignal.timeout(3000) });
+            // 1. Try to fetch from a more reliable, direct API (Quotable)
+            try {
+                // We use a timeout so it doesn't hang if your net is slow
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+                const response = await fetch('https://api.quotable.io/random?tags=success|wisdom', { signal: controller.signal });
+                
+                if (response.ok) {
                     const data = await response.json();
-                    const quoteData = JSON.parse(data.contents)[0];
-                    
-                    const text = quoteData.q.toLowerCase();
-                    const hasKeyword = keywords.some(word => text.includes(word));
-
-                    if (hasKeyword) {
-                        displayQuote(quoteData.q, quoteData.a);
-                        return; // Exit function if internet quote is good
-                    }
-                } catch (e) {
-                    console.log("Internet fetch failed or timed out, switching to local.");
+                    displayQuote(data.content, data.author, "Internet");
+                    return;
                 }
+            } catch (e) {
+                console.log("Internet fetch failed, using local backup.");
             }
 
-            // 2. Fallback to Local List (if offline, timeout, or no keyword match)
+            // 2. Fallback to local if Internet fails
             const randomLocal = localQuotes[Math.floor(Math.random() * localQuotes.length)];
-            displayQuote(randomLocal.q, randomLocal.a);
+            displayQuote(randomLocal.content, randomLocal.author, "Local Backup");
         }
 
-        function displayQuote(q, a) {
+        function displayQuote(q, a, source) {
             const container = document.getElementById('container');
             document.getElementById('quote').innerText = `"${q}"`;
             document.getElementById('author').innerText = `— ${a}`;
+            document.getElementById('status').innerText = `Source: ${source}`;
             
             container.classList.remove('fade-in');
             void container.offsetWidth; 
             container.classList.add('fade-in');
         }
 
+        // Initial load
         window.onload = getQuote;
     </script>
 </body>
