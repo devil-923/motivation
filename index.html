@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consistency & Grit</title>
+    <style>
+        /* Minimalist "Stoic" Design */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000000; /* Pure black for focus */
+            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            text-align: center;
+            cursor: pointer; /* Indicates you can click anywhere to refresh */
+            user-select: none; /* Prevents accidental text highlighting */
+        }
+
+        #container {
+            max-width: 90%;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 400;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-top: 30px;
+        }
+
+        /* Subtle fade animation when quote changes */
+        .fade-in {
+            animation: fadeIn 0.8s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body onclick="getQuote()">
+
+    <div id="container" class="fade-in">
+        <h1 id="quote">"Discipline is doing what needs to be done, even if you don't want to do it."</h1>
+        <p id="author">— Anonymous</p>
+    </div>
+
+    <script>
+        const quotes = [
+            { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle" },
+            { text: "Success is the sum of small efforts, repeated day-in and day-out.", author: "Robert Collier" },
+            { text: "It’s not what we do once in a while that shapes our lives. It’s what we do consistently.", author: "Tony Robbins" },
+            { text: "Ninety percent of success is just showing up.", author: "Woody Allen" },
+            { text: "Discipline is the bridge between goals and accomplishment.", author: "Jim Rohn" },
+            { text: "Small steps in the right direction can turn out to be the biggest steps of your life.", author: "Unknown" },
+            { text: "Great works are performed not by strength but by perseverance.", author: "Samuel Johnson" },
+            { text: "The secret of your future is hidden in your daily routine.", author: "Mike Murdock" },
+            { text: "Energy and persistence conquer all things.", author: "Benjamin Franklin" },
+            { text: "Amateurs sit and wait for inspiration, the rest of us just get up and go to work.", author: "Stephen King" }
+        ];
+
+        function getQuote() {
+            const container = document.getElementById('container');
+            const quoteEl = document.getElementById('quote');
+            const authorEl = document.getElementById('author');
+
+            // Reset animation
+            container.classList.remove('fade-in');
+            void container.offsetWidth; // Trigger reflow
+            container.classList.add('fade-in');
+
+            // Select random quote
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const selected = quotes[randomIndex];
+
+            quoteEl.innerText = `"${selected.text}"`;
+            authorEl.innerText = `— ${selected.author}`;
+        }
+
+        // Run once on load
+        window.onload = getQuote;
+    </script>
+</body>
+</html>
