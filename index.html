@@ -3,83 +3,529 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grit & Consistency</title>
+    <title>Consistency & Grit</title>
     <style>
         body {
             margin: 0;
             height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: #000000;
             color: #ffffff;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
             text-align: center;
+            cursor: pointer;
+            user-select: none;
+            overflow: hidden;
         }
-        #container { max-width: 80%; padding: 40px; cursor: pointer; }
-        h1 { font-size: 2.2rem; font-weight: 400; line-height: 1.6; }
-        p { font-size: 1rem; color: #666666; text-transform: uppercase; letter-spacing: 0.2em; margin-top: 30px; }
-        .fade-in { animation: fadeIn 0.8s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        #status { position: fixed; bottom: 20px; font-size: 0.7rem; color: #333; }
+        #container {
+            max-width: 900px;
+            padding: 40px;
+            transition: opacity 0.3s ease;
+        }
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 300;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+        p {
+            font-size: 0.9rem;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.4em;
+        }
     </style>
 </head>
-<body onclick="getQuote()">
+<body onclick="nextQuote()">
 
     <div id="container">
-        <h1 id="quote">Loading inspiration...</h1>
+        <h1 id="quote">"Click to begin your session."</h1>
         <p id="author"></p>
     </div>
 
-    <div id="status">Syncing...</div>
-
     <script>
-        const localQuotes = [
-            { q: "Discipline is the bridge between goals and accomplishment.", a: "Jim Rohn" },
-            { q: "Success is the sum of small efforts, repeated day-in and day-out.", a: "Robert Collier" },
-            { q: "Hard work beats talent when talent doesn't work hard.", a: "Tim Notke" }
+        const quotes = [
+            {q: "Discipline is doing what needs to be done, even if you don't want to do it.", a: "Anonymous"},
+            {q: "Success is the sum of small efforts, repeated day-in and day-out.", a: "Robert Collier"},
+            {q: "Hard work beats talent when talent doesn't work hard.", a: "Tim Notke"},
+            {q: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius"},
+            {q: "The only way to do great work is to love what you do.", a: "Steve Jobs"},
+            {q: "Motivation is what gets you started. Habit is what keeps you going.", a: "Jim Ryun"},
+            {q: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", a: "Aristotle"},
+            {q: "Small steps in the right direction can turn out to be the biggest steps of your life.", a: "Unknown"},
+            {q: "Amateurs sit and wait for inspiration, the rest of us just get up and go to work.", a: "Stephen King"},
+            {q: "Don't watch the clock; do what it does. Keep going.", a: "Sam Levenson"},
+            {q: "Focus on being productive instead of busy.", a: "Tim Ferriss"},
+            {q: "Energy and persistence conquer all things.", a: "Benjamin Franklin"},
+            {q: "The secret of your future is hidden in your daily routine.", a: "Mike Murdock"},
+            {q: "Ninety percent of success is just showing up.", a: "Woody Allen"},
+            {q: "The successful warrior is the average man, with laser-like focus.", a: "Bruce Lee"},
+            {q: "Action is the foundational key to all success.", a: "Pablo Picasso"},
+            {q: "Genius is 1% inspiration and 99% perspiration.", a: "Thomas Edison"},
+            {q: "Consistency is better than perfection.", a: "Unknown"},
+            {q: "Well begun is half done.", a: "Aristotle"},
+            {q: "The best way to predict your future is to create it.", a: "Peter Drucker"},
+            {q: "Everything is hard before it is easy.", a: "Goethe"},
+            {q: "If you are going through hell, keep going.", a: "Winston Churchill"},
+            {q: "It always seems impossible until it's done.", a: "Nelson Mandela"},
+            {q: "Start where you are. Use what you have. Do what you can.", a: "Arthur Ashe"},
+            {q: "Quality is not an act, it is a habit.", a: "Aristotle"},
+            {q: "Strength does not come from winning. Your struggles develop your strengths.", a: "Arnold Schwarzenegger"},
+            {q: "Do not pray for an easy life, pray for the strength to endure a difficult one.", a: "Bruce Lee"},
+            {q: "The journey of a thousand miles begins with a single step.", a: "Lao Tzu"},
+            {q: "Fall seven times, stand up eight.", a: "Japanese Proverb"},
+            {q: "Your talent determines what you can do. Your motivation determines how much you are willing to do.", a: "Lou Holtz"},
+            {q: "There are no shortcuts to any place worth going.", a: "Beverly Sills"},
+            {q: "Perseverance is not a long race; it is many short races one after the other.", a: "Walter Elliot"},
+            {q: "You don't have to be great to start, but you have to start to be great.", a: "Zig Ziglar"},
+            {q: "Don't let yesterday take up too much of today.", a: "Will Rogers"},
+            {q: "Success usually comes to those who are too busy to be looking for it.", a: "Henry David Thoreau"},
+            {q: "Opportunities don't happen. You create them.", a: "Chris Grosser"},
+            {q: "Stop chasing the money and start chasing the passion.", a: "Tony Hsieh"},
+            {q: "Develop success from failures.", a: "Dale Carnegie"},
+            {q: "The only limit to our realization of tomorrow will be our doubts of today.", a: "F.D.R."},
+            {q: "Be so good they can't ignore you.", a: "Steve Martin"},
+            {q: "Do one thing every day that scares you.", a: "Eleanor Roosevelt"},
+            {q: "Keep your eyes on the stars, and your feet on the ground.", a: "Theodore Roosevelt"},
+            {q: "Believe you can and you're halfway there.", a: "Theodore Roosevelt"},
+            {q: "Preparation for tomorrow is hard work today.", a: "Bruce Lee"},
+            {q: "Logic will get you from A to B. Imagination will take you everywhere.", a: "Albert Einstein"},
+            {q: "The standard you walk past is the standard you accept.", a: "David Hurley"},
+            {q: "If you want to fly, give up everything that weighs you down.", a: "Toni Morrison"},
+            {q: "Doubt kills more dreams than failure ever will.", a: "Suzy Kassem"},
+            {q: "The man who moves a mountain begins by carrying away small stones.", a: "Confucius"},
+            {q: "Productivity is never an accident.", a: "Paul J. Meyer"},
+            {q: "If you cannot do great things, do small things in a great way.", a: "Napoleon Hill"},
+            {q: "Hard work is a prison sentence only if it does not have a meaning.", a: "Malcolm Gladwell"},
+            {q: "Everything comes to him who hustles while he waits.", a: "Thomas Edison"},
+            {q: "I find that the harder I work, the more luck I seem to have.", a: "Thomas Jefferson"},
+            {q: "There is no substitute for hard work.", a: "Thomas Edison"},
+            {q: "Work hard in silence, let your success be your noise.", a: "Frank Ocean"},
+            {q: "The only place where success comes before work is in the dictionary.", a: "Vidal Sassoon"},
+            {q: "I’m a greater believer in luck, and I find the harder I work the more I have of it.", a: "Thomas Jefferson"},
+            {q: "Success is no accident. It is hard work, perseverance, and sacrifice.", a: "Pelé"},
+            {q: "Talent is cheaper than table salt.", a: "Stephen King"},
+            {q: "Chop your own wood and it will warm you twice.", a: "Henry Ford"},
+            {q: "Success is walking from failure to failure with no loss of enthusiasm.", a: "Winston Churchill"},
+            {q: "The difference between try and triumph is a little 'umph'.", a: "Marvin Phillips"},
+            {q: "I would rather die on my feet than live on my knees.", a: "Emiliano Zapata"},
+            {q: "It is not the mountain we conquer but ourselves.", a: "Sir Edmund Hillary"},
+            {q: "The road to success and the road to failure are almost exactly the same.", a: "Colin R. Davis"},
+            {q: "Nothing will work unless you do.", a: "Maya Angelou"},
+            {q: "Don’t count the days, make the days count.", a: "Muhammad Ali"},
+            {q: "The only person you should try to be better than is the person you were yesterday.", a: "Anonymous"},
+            {q: "It's not about perfect. It's about effort.", a: "Jillian Michaels"},
+            {q: "A year from now you may wish you had started today.", a: "Karen Lamb"},
+            {q: "Someday is not a day of the week.", a: "Denise Brennan-Nelson"},
+            {q: "Small progress is still progress.", a: "Anonymous"},
+            {q: "Don’t wait for opportunity. Create it.", a: "Anonymous"},
+            {q: "The harder you work for something, the greater you’ll feel when you achieve it.", a: "Anonymous"},
+            {q: "Dream bigger. Do bigger.", a: "Anonymous"},
+            {q: "Don't stop when you're tired. Stop when you're done.", a: "Anonymous"},
+            {q: "Wake up with determination. Go to bed with satisfaction.", a: "Anonymous"},
+            {q: "Do something today that your future self will thank you for.", a: "Anonymous"},
+            {q: "Little things make big days.", a: "Anonymous"},
+            {q: "It’s going to be hard, but hard does not mean impossible.", a: "Anonymous"},
+            {q: "Don’t be discouraged. It’s often the last key in the bunch that opens the lock.", a: "Anonymous"},
+            {q: "Work hard, be kind, and amazing things will happen.", a: "Conan O’Brien"},
+            {q: "Success doesn't just find you. You have to go out and get it.", a: "Anonymous"},
+            {q: "The key to success is to focus on goals, not obstacles.", a: "Anonymous"},
+            {q: "Dream it. Believe it. Build it.", a: "Anonymous"},
+            {q: "Action speaks louder than words.", a: "Anonymous"},
+            {q: "Believe in yourself and you will be unstoppable.", a: "Anonymous"},
+            {q: "Your only limit is you.", a: "Anonymous"},
+            {q: "Push yourself, because no one else is going to do it for you.", a: "Anonymous"},
+            {q: "Great things never come from comfort zones.", a: "Anonymous"},
+            {q: "The struggle you’re in today is developing the strength you need for tomorrow.", a: "Anonymous"},
+            {q: "Be stronger than your excuses.", a: "Anonymous"},
+            {q: "Success is what happens after you have survived all of your mistakes.", a: "Anonymous"},
+            {q: "Don't wish for it. Work for it.", a: "Anonymous"},
+            {q: "Difficult roads often lead to beautiful destinations.", a: "Anonymous"},
+            {q: "You are capable of more than you know.", a: "Anonymous"},
+            {q: "Stay focused and never give up.", a: "Anonymous"},
+            {q: "You don't need to see the whole staircase, just take the first step.", a: "Martin Luther King Jr."},
+            {q: "Believe you can and you’re halfway there.", a: "T. Roosevelt"},
+            {q: "Keep going. Each step is getting you closer to your goal.", a: "Anonymous"},
+            {q: "Never give up on a dream just because of the time it will take to accomplish it.", a: "Earl Nightingale"},
+            {q: "Be consistent. The results will follow.", a: "Anonymous"},
+            {q: "It’s a slow process, but quitting won’t speed it up.", a: "Anonymous"},
+            {q: "Discipline is choosing between what you want now and what you want most.", a: "Abraham Lincoln"},
+            {q: "Mistakes are proof that you are trying.", a: "Anonymous"},
+            {q: "Be the change you wish to see in the world.", a: "Mahatma Gandhi"},
+            {q: "You can do anything you set your mind to.", a: "Anonymous"},
+            {q: "Success is a journey, not a destination.", a: "Anonymous"},
+            {q: "The only limit to our realization of tomorrow will be our doubts of today.", a: "F.D.R."},
+            {q: "Stay positive, work hard, make it happen.", a: "Anonymous"},
+            {q: "Every day is a fresh start.", a: "Anonymous"},
+            {q: "Don't let yesterday take up too much of today.", a: "Will Rogers"},
+            {q: "Persistence is the path to success.", a: "Anonymous"},
+            {q: "The power of imagination makes us infinite.", a: "John Muir"},
+            {q: "Keep your face to the sunshine and you cannot see a shadow.", a: "Helen Keller"},
+            {q: "Your life is your message to the world. Make it inspiring.", a: "Anonymous"},
+            {q: "Think big thoughts but relish small pleasures.", a: "H. Jackson Brown Jr."},
+            {q: "Happiness depends upon ourselves.", a: "Aristotle"},
+            {q: "Success is liked by many but earned by few.", a: "Anonymous"},
+            {q: "If you want something you've never had, you must be willing to do something you've never done.", a: "Thomas Jefferson"},
+            {q: "Don't be afraid to give up the good to go for the great.", a: "John D. Rockefeller"},
+            {q: "I find that the harder I work, the more luck I seem to have.", a: "Thomas Jefferson"},
+            {q: "Great things are done by a series of small things brought together.", a: "Vincent Van Gogh"},
+            {q: "Opportunities don't happen, you create them.", a: "Chris Grosser"},
+            {q: "Try to be a rainbow in someone else's cloud.", a: "Maya Angelou"},
+            {q: "The expert in anything was once a beginner.", a: "Helen Hayes"},
+            {q: "Don't quit your day dream.", a: "Anonymous"},
+            {q: "You must be the change you wish to see in the world.", a: "Mahatma Gandhi"},
+            {q: "Hard work pays off.", a: "Anonymous"},
+            {q: "Believe in the power of yet.", a: "Anonymous"},
+            {q: "Whatever you are, be a good one.", a: "Abraham Lincoln"},
+            {q: "Be brave, be bold, be you.", a: "Anonymous"},
+            {q: "Everything you can imagine is real.", a: "Pablo Picasso"},
+            {q: "Success is not just about what you accomplish in your life; it's about what you inspire others to do.", a: "Anonymous"},
+            {q: "Life is 10% what happens to us and 90% how we react to it.", a: "Charles R. Swindoll"},
+            {q: "The way to get started is to quit talking and begin doing.", a: "Walt Disney"},
+            {q: "If you look at what you have in life, you'll always have more.", a: "Oprah Winfrey"},
+            {q: "If you set your goals ridiculously high and it's a failure, you will fail above everyone else's success.", a: "James Cameron"},
+            {q: "Spread love everywhere you go. Let no one ever come to you without leaving happier.", a: "Mother Teresa"},
+            {q: "When you reach the end of your rope, tie a knot in it and hang on.", a: "Franklin D. Roosevelt"},
+            {q: "Always remember that you are absolutely unique. Just like everyone else.", a: "Margaret Mead"},
+            {q: "Don't judge each day by the harvest you reap but by the seeds that you plant.", a: "Robert Louis Stevenson"},
+            {q: "The future belongs to those who believe in the beauty of their dreams.", a: "Eleanor Roosevelt"},
+            {q: "Tell me and I forget. Teach me and I remember. Involve me and I learn.", a: "Benjamin Franklin"},
+            {q: "The best and most beautiful things in the world cannot be seen or even touched - they must be felt with the heart.", a: "Helen Keller"},
+            {q: "It is during our darkest moments that we must focus to see the light.", a: "Aristotle"},
+            {q: "Whoever is happy will make others happy too.", a: "Anne Frank"},
+            {q: "Do not go where the path may lead, go instead where there is no path and leave a trail.", a: "Ralph Waldo Emerson"},
+            {q: "Spread love everywhere you go.", a: "Mother Teresa"},
+            {q: "Keep smiling, because life is a beautiful thing and there's so much to smile about.", a: "Marilyn Monroe"},
+            {q: "In the end, it's not the years in your life that count. It's the life in your years.", a: "Abraham Lincoln"},
+            {q: "Life is either a daring adventure or nothing at all.", a: "Helen Keller"},
+            {q: "Many of life's failures are people who did not realize how close they were to success when they gave up.", a: "Thomas A. Edison"},
+            {q: "You have brains in your head. You have feet in your shoes. You can steer yourself any direction you choose.", a: "Dr. Seuss"},
+            {q: "Life is really simple, but we insist on making it complicated.", a: "Confucius"},
+            {q: "Life is a succession of lessons which must be lived to be understood.", a: "Ralph Waldo Emerson"},
+            {q: "Only a life lived for others is a life worthwhile.", a: "Albert Einstein"},
+            {q: "The purpose of our lives is to be happy.", a: "Dalai Lama"},
+            {q: "Life is what happens when you're busy making other plans.", a: "John Lennon"},
+            {q: "Get busy living or get busy dying.", a: "Stephen King"},
+            {q: "You only live once, but if you do it right, once is enough.", a: "Mae West"},
+            {q: "In three words I can sum up everything I've learned about life: it goes on.", a: "Robert Frost"},
+            {q: "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", a: "Ralph Waldo Emerson"},
+            {q: "The only way to have a friend is to be one.", a: "Ralph Waldo Emerson"},
+            {q: "Everything has beauty, but not everyone sees it.", a: "Confucius"},
+            {q: "If you change the way you look at things, the things you look at change.", a: "Wayne Dyer"},
+            {q: "The power of imagination makes us infinite.", a: "John Muir"},
+            {q: "Success is a state of mind. If you want success, start thinking of yourself as a success.", a: "Joyce Brothers"},
+            {q: "What lies behind us and what lies before us are tiny matters compared to what lies within us.", a: "Ralph Waldo Emerson"},
+            {q: "If you can dream it, you can do it.", a: "Walt Disney"},
+            {q: "Hard work pays off in the end.", a: "Anonymous"},
+            {q: "I find that the harder I work, the more luck I seem to have.", a: "Thomas Jefferson"},
+            {q: "Believe in yourself and all that you are.", a: "Christian D. Larson"},
+            {q: "Be kind whenever possible. It is always possible.", a: "Dalai Lama"},
+            {q: "Action is the foundational key to all success.", a: "Pablo Picasso"},
+            {q: "Do what you can with all you have, wherever you are.", a: "Theodore Roosevelt"},
+            {q: "You are never too old to set another goal or to dream a new dream.", a: "C.S. Lewis"},
+            {q: "When you stop dreaming you stop living.", a: "Malcolm Forbes"},
+            {q: "It’s not what happens to you, but how you react to it that matters.", a: "Epictetus"},
+            {q: "Happiness is not something readymade. It comes from your own actions.", a: "Dalai Lama"},
+            {q: "Act as if what you do makes a difference. It does.", a: "William James"},
+            {q: "Life is a journey, and if you fall in love with the journey, you will be in love forever.", a: "Peter Hagerty"},
+            {q: "The more that you read, the more things you will know. The more that you learn, the more places you'll go.", a: "Dr. Seuss"},
+            {q: "Do what you love, and the money will follow.", a: "Marsha Sinetar"},
+            {q: "Every moment is a fresh beginning.", a: "T.S. Eliot"},
+            {q: "Don't cry because it's over, smile because it happened.", a: "Dr. Seuss"},
+            {q: "Change the world by being yourself.", a: "Amy Poehler"},
+            {q: "Never regret anything that made you smile.", a: "Mark Twain"},
+            {q: "Everything you can imagine is real.", a: "Pablo Picasso"},
+            {q: "Die with memories, not dreams.", a: "Anonymous"},
+            {q: "Aspire to inspire before we expire.", a: "Anonymous"},
+            {q: "Everything has beauty, but not everyone sees it.", a: "Confucius"},
+            {q: "Simplicity is the ultimate sophistication.", a: "Leonardo da Vinci"},
+            {q: "The only limit to our realization of tomorrow will be our doubts of today.", a: "F.D.R."},
+            {q: "Whatever you are, be a good one.", a: "Abraham Lincoln"},
+            {q: "Happiness is a warm puppy.", a: "Charles M. Schulz"},
+            {q: "Make each day your masterpiece.", a: "John Wooden"},
+            {q: "Dream as if you'll live forever, live as if you'll die today.", a: "James Dean"},
+            {q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde"},
+            {q: "To live is the rarest thing in the world. Most people exist, that is all.", a: "Oscar Wilde"},
+            {q: "Yesterday is history, tomorrow is a mystery, today is a gift of God, which is why we call it the present.", a: "Bill Keane"},
+            {q: "Keep calm and carry on.", a: "British Ministry of Information"},
+            {q: "Live the life you've imagined.", a: "Henry David Thoreau"},
+            {q: "Do what you feel in your heart to be right – for you'll be criticized anyway.", a: "Eleanor Roosevelt"},
+            {q: "The only way to do great work is to love what you do.", a: "Steve Jobs"},
+            {q: "It's not where you come from. It's where you're going that counts.", a: "Ella Fitzgerald"},
+            {q: "You miss 100% of the shots you don't take.", a: "Wayne Gretzky"},
+            {q: "A person who never made a mistake never tried anything new.", a: "Albert Einstein"},
+            {q: "I have not failed. I've just found 10,000 ways that won't work.", a: "Thomas A. Edison"},
+            {q: "Be the change you wish to see in the world.", a: "Mahatma Gandhi"},
+            {q: "The secret of getting ahead is getting started.", a: "Mark Twain"},
+            {q: "Don't let what you cannot do interfere with what you can do.", a: "John Wooden"},
+            {q: "Logic will get you from A to B. Imagination will take you everywhere.", a: "Albert Einstein"},
+            {q: "Everything is hard before it is easy.", a: "Goethe"},
+            {q: "Well begun is half done.", a: "Aristotle"},
+            {q: "Quality is not an act, it is a habit.", a: "Aristotle"},
+            {q: "Consistency is better than perfection.", a: "Unknown"},
+            {q: "Start where you are. Use what you have. Do what you can.", a: "Arthur Ashe"},
+            {q: "If you are going through hell, keep going.", a: "Winston Churchill"},
+            {q: "Success is not final, failure is not fatal: it is the courage to continue that counts.", a: "Winston Churchill"},
+            {q: "Action is the foundational key to all success.", a: "Pablo Picasso"},
+            {q: "Excellence is not a skill. It is an attitude.", a: "Ralph Marston"},
+            {q: "Amateurs sit and wait for inspiration, the rest of us just get up and go to work.", a: "Stephen King"},
+            {q: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius"},
+            {q: "The secret of your future is hidden in your daily routine.", a: "Mike Murdock"},
+            {q: "Discipline is the bridge between goals and accomplishment.", a: "Jim Rohn"},
+            {q: "The difference between try and triumph is a little 'umph'.", a: "Marvin Phillips"},
+            {q: "Nothing will work unless you do.", a: "Maya Angelou"},
+            {q: "A year from now you may wish you had started today.", a: "Karen Lamb"},
+            {q: "Don't watch the clock; do what it does. Keep going.", a: "Sam Levenson"},
+            {q: "Someday is not a day of the week.", a: "Denise Brennan-Nelson"},
+            {q: "Opportunities don't happen. You create them.", a: "Chris Grosser"},
+            {q: "Success usually comes to those who are too busy to be looking for it.", a: "Henry David Thoreau"},
+            {q: "Your talent determines what you can do. Your motivation determines how much you are willing to do.", a: "Lou Holtz"},
+            {q: "There are no shortcuts to any place worth going.", a: "Beverly Sills"},
+            {q: "Do what you can with all you have, wherever you are.", a: "Theodore Roosevelt"},
+            {q: "Your life is your message to the world. Make it inspiring.", a: "Anonymous"},
+            {q: "Small progress is still progress.", a: "Anonymous"},
+            {q: "Mistakes are proof that you are trying.", a: "Anonymous"},
+            {q: "Hard work pays off.", a: "Anonymous"},
+            {q: "Stay focused and never give up.", a: "Anonymous"},
+            {q: "Be consistent. The results will follow.", a: "Anonymous"},
+            {q: "Your only limit is you.", a: "Anonymous"},
+            {q: "Focus on being productive instead of busy.", a: "Tim Ferriss"},
+            {q: "Energy and persistence conquer all things.", a: "Benjamin Franklin"},
+            {q: "Success is the sum of small efforts, repeated day-in and day-out.", a: "Robert Collier"},
+            {q: "The expert in anything was once a beginner.", a: "Helen Hayes"},
+            {q: "Be brave, be bold, be you.", a: "Anonymous"},
+            {q: "Everything has beauty, but not everyone sees it.", a: "Confucius"},
+            {q: "Dream it. Believe it. Build it.", a: "Anonymous"},
+            {q: "Persistence is the path to success.", a: "Anonymous"},
+            {q: "Do something today that your future self will thank you for.", a: "Anonymous"},
+            {q: "Every day is a fresh start.", a: "Anonymous"},
+            {q: "Hard work is a prison sentence only if it does not have a meaning.", a: "Malcolm Gladwell"},
+            {q: "Genius is 1% inspiration and 99% perspiration.", a: "Thomas Edison"},
+            {q: "The standard you walk past is the standard you accept.", a: "David Hurley"},
+            {q: "If you want to fly, give up everything that weighs you down.", a: "Toni Morrison"},
+            {q: "Believe in the power of yet.", a: "Anonymous"},
+            {q: "Action speaks louder than words.", a: "Anonymous"},
+            {q: "Be so good they can't ignore you.", a: "Steve Martin"},
+            {q: "Success is liked by many but earned by few.", a: "Anonymous"},
+            {q: "Motivation is what gets you started. Habit is what keeps you going.", a: "Jim Ryun"},
+            {q: "The journey of a thousand miles begins with a single step.", a: "Lao Tzu"},
+            {q: "Productivity is never an accident.", a: "Paul J. Meyer"},
+            {q: "Whatever you are, be a good one.", a: "Abraham Lincoln"},
+            {q: "Little things make big days.", a: "Anonymous"},
+            {q: "Believe you can and you’re halfway there.", a: "T. Roosevelt"},
+            {q: "The successful warrior is the average man, with laser-like focus.", a: "Bruce Lee"},
+            {q: "Work hard, be kind, and amazing things will happen.", a: "Conan O’Brien"},
+            {q: "It's not where you come from. It's where you're going that counts.", a: "Ella Fitzgerald"},
+            {q: "Everything comes to him who hustles while he waits.", a: "Thomas Edison"},
+            {q: "I find that the harder I work, the more luck I seem to have.", a: "Thomas Jefferson"},
+            {q: "The only limit to our realization of tomorrow will be our doubts of today.", a: "F.D.R."},
+            {q: "Stay positive, work hard, make it happen.", a: "Anonymous"},
+            {q: "Keep your eyes on the stars, and your feet on the ground.", a: "Theodore Roosevelt"},
+            {q: "Success is what happens after you have survived all of your mistakes.", a: "Anonymous"},
+            {q: "It’s going to be hard, but hard does not mean impossible.", a: "Anonymous"},
+            {q: "Strength does not come from winning. Your struggles develop your strengths.", a: "Arnold Schwarzenegger"},
+            {q: "Don't wish for it. Work for it.", a: "Anonymous"},
+            {q: "Wake up with determination. Go to bed with satisfaction.", a: "Anonymous"},
+            {q: "Don't quit your day dream.", a: "Anonymous"},
+            {q: "Success is a journey, not a destination.", a: "Anonymous"},
+            {q: "You are capable of more than you know.", a: "Anonymous"},
+            {q: "Push yourself, because no one else is going to do it for you.", a: "Anonymous"},
+            {q: "The struggle you’re in today is developing the strength you need for tomorrow.", a: "Anonymous"},
+            {q: "Difficult roads often lead to beautiful destinations.", a: "Anonymous"},
+            {q: "Dream bigger. Do bigger.", a: "Anonymous"},
+            {q: "Don’t count the days, make the days count.", a: "Muhammad Ali"},
+            {q: "The ones who are crazy enough to think they can change the world are the ones who do.", a: "Steve Jobs"},
+            {q: "Don't judge each day by the harvest you reap but by the seeds that you plant.", a: "Robert Louis Stevenson"},
+            {q: "I have not failed. I've just found 10,000 ways that won't work.", a: "Thomas A. Edison"},
+            {q: "You miss 100% of the shots you don't take.", a: "Wayne Gretzky"},
+            {q: "A person who never made a mistake never tried anything new.", a: "Albert Einstein"},
+            {q: "The purpose of our lives is to be happy.", a: "Dalai Lama"},
+            {q: "Do one thing every day that scares you.", a: "Eleanor Roosevelt"},
+            {q: "Keep smiling, because life is a beautiful thing.", a: "Marilyn Monroe"},
+            {q: "In the end, it's not the years in your life that count. It's the life in your years.", a: "Abraham Lincoln"},
+            {q: "Life is what happens when you're busy making other plans.", a: "John Lennon"},
+            {q: "Get busy living or get busy dying.", a: "Stephen King"},
+            {q: "You only live once, but if you do it right, once is enough.", a: "Mae West"},
+            {q: "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", a: "Ralph Waldo Emerson"},
+            {q: "Everything has beauty, but not everyone sees it.", a: "Confucius"},
+            {q: "If you can dream it, you can do it.", a: "Walt Disney"},
+            {q: "Be kind whenever possible. It is always possible.", a: "Dalai Lama"},
+            {q: "When you stop dreaming you stop living.", a: "Malcolm Forbes"},
+            {q: "Happiness is not something readymade. It comes from your own actions.", a: "Dalai Lama"},
+            {q: "Every moment is a fresh beginning.", a: "T.S. Eliot"},
+            {q: "Change the world by being yourself.", a: "Amy Poehler"},
+            {q: "Never regret anything that made you smile.", a: "Mark Twain"},
+            {q: "Aspire to inspire before we expire.", a: "Anonymous"},
+            {q: "Simplicity is the ultimate sophistication.", a: "Leonardo da Vinci"},
+            {q: "Make each day your masterpiece.", a: "John Wooden"},
+            {q: "Be yourself; everyone else is already taken.", a: "Oscar Wilde"},
+            {q: "Live the life you've imagined.", a: "Henry David Thoreau"},
+            {q: "It's not where you come from. It's where you're going.", a: "Ella Fitzgerald"},
+            {q: "Don't stop when you're tired. Stop when you're done.", a: "Anonymous"},
+            {q: "Your life is your message.", a: "Anonymous"},
+            {q: "Believe in yourself.", a: "Anonymous"},
+            {q: "Dream it. Build it.", a: "Anonymous"},
+            {q: "Take the risk.", a: "Anonymous"},
+            {q: "Keep showing up.", a: "Anonymous"},
+            {q: "One step at a time.", a: "Anonymous"},
+            {q: "Focus on the positive.", a: "Anonymous"},
+            {q: "Stay humble. Work hard.", a: "Anonymous"},
+            {q: "Do your best.", a: "Anonymous"},
+            {q: "Never lose hope.", a: "Anonymous"},
+            {q: "Be better every day.", a: "Anonymous"},
+            {q: "Growth takes time.", a: "Anonymous"},
+            {q: "Discipline is freedom.", a: "Jocko Willink"},
+            {q: "Extreme ownership.", a: "Jocko Willink"},
+            {q: "Get after it.", a: "Jocko Willink"},
+            {q: "No excuses.", a: "Anonymous"},
+            {q: "Own your life.", a: "Anonymous"},
+            {q: "Results over excuses.", a: "Anonymous"},
+            {q: "Consistency is king.", a: "Anonymous"},
+            {q: "Hard work is the only way.", a: "Anonymous"},
+            {q: "Push through the pain.", a: "Anonymous"},
+            {q: "Win the day.", a: "Anonymous"},
+            {q: "Rise and grind.", a: "Anonymous"},
+            {q: "Stay hungry.", a: "Anonymous"},
+            {q: "Finish strong.", a: "Anonymous"},
+            {q: "Keep the momentum.", a: "Anonymous"},
+            {q: "Small wins add up.", a: "Anonymous"},
+            {q: "Focus on the process.", a: "Anonymous"},
+            {q: "The work is the reward.", a: "Anonymous"},
+            {q: "Embrace the suck.", a: "Anonymous"},
+            {q: "Earned, not given.", a: "Anonymous"},
+            {q: "Legacy is built daily.", a: "Anonymous"},
+            {q: "The only limit is your mind.", a: "Anonymous"},
+            {q: "Greatness is a choice.", a: "Anonymous"},
+            {q: "Sweat more, bleed less.", a: "Anonymous"},
+            {q: "No shortcuts.", a: "Anonymous"},
+            {q: "Believe and achieve.", a: "Anonymous"},
+            {q: "Master your craft.", a: "Anonymous"},
+            {q: "Daily improvement.", a: "Anonymous"},
+            {q: "Unstoppable force.", a: "Anonymous"},
+            {q: "Grit determines success.", a: "Anonymous"},
+            {q: "Strive for excellence.", a: "Anonymous"},
+            {q: "Action is everything.", a: "Anonymous"},
+            {q: "Discipline over motivation.", a: "Anonymous"},
+            {q: "Fuel your fire.", a: "Anonymous"},
+            {q: "Conquer yourself.", a: "Anonymous"},
+            {q: "Build your future.", a: "Anonymous"},
+            {q: "No one is coming to save you.", a: "Anonymous"},
+            {q: "It's on you.", a: "Anonymous"},
+            {q: "Make it happen.", a: "Anonymous"},
+            {q: "Never back down.", a: "Anonymous"},
+            {q: "Strong mind, strong life.", a: "Anonymous"},
+            {q: "Endure and evolve.", a: "Anonymous"},
+            {q: "Precision in effort.", a: "Anonymous"},
+            {q: "Silent execution.", a: "Anonymous"},
+            {q: "Deep focus.", a: "Anonymous"},
+            {q: "The grind includes Friday.", a: "Anonymous"},
+            {q: "Saturday is a workday.", a: "Anonymous"},
+            {q: "Sunday is for prep.", a: "Anonymous"},
+            {q: "No off days.", a: "Anonymous"},
+            {q: "Commitment is key.", a: "Anonymous"},
+            {q: "Sacrifice for the goal.", a: "Anonymous"},
+            {q: "Eyes on the prize.", a: "Anonymous"},
+            {q: "Do not falter.", a: "Anonymous"},
+            {q: "Stand tall.", a: "Anonymous"},
+            {q: "Work in the dark.", a: "Anonymous"},
+            {q: "Shine in the light.", a: "Anonymous"},
+            {q: "Excellence is habit.", a: "Anonymous"},
+            {q: "Think clearly.", a: "Anonymous"},
+            {q: "Solve the problem.", a: "Anonymous"},
+            {q: "Adapt and overcome.", a: "Anonymous"},
+            {q: "Analyze and act.", a: "Anonymous"},
+            {q: "Strategy meets effort.", a: "Anonymous"},
+            {q: "Knowledge is power.", a: "Anonymous"},
+            {q: "Wisdom through work.", a: "Anonymous"},
+            {q: "The path is work.", a: "Anonymous"},
+            {q: "One more rep.", a: "Anonymous"},
+            {q: "One more page.", a: "Anonymous"},
+            {q: "One more problem.", a: "Anonymous"},
+            {q: "Study hard.", a: "Anonymous"},
+            {q: "Learn deeply.", a: "Anonymous"},
+            {q: "Master the logic.", a: "Anonymous"},
+            {q: "Science is progress.", a: "Anonymous"},
+            {q: "Truth through testing.", a: "Anonymous"},
+            {q: "The variable is you.", a: "Anonymous"},
+            {q: "Input equals output.", a: "Anonymous"},
+            {q: "Maximum effort.", a: "Anonymous"},
+            {q: "Zero distractions.", a: "Anonymous"},
+            {q: "Pure focus.", a: "Anonymous"},
+            {q: "The goal is clear.", a: "Anonymous"},
+            {q: "Don't blink.", a: "Anonymous"},
+            {q: "Keep the faith.", a: "Anonymous"},
+            {q: "Stronger every day.", a: "Anonymous"},
+            {q: "Better than before.", a: "Anonymous"},
+            {q: "The grind is real.", a: "Anonymous"},
+            {q: "Worth the struggle.", a: "Anonymous"},
+            {q: "Pain is temporary.", a: "Anonymous"},
+            {q: "Pride is forever.", a: "Anonymous"},
+            {q: "Do it now.", a: "Anonymous"},
+            {q: "Tomorrow is too late.", a: "Anonymous"},
+            {q: "Seize the day.", a: "Anonymous"},
+            {q: "Carpe Diem.", a: "Horace"},
+            {q: "Memento Mori.", a: "Stoic"},
+            {q: "Amor Fati.", a: "Stoic"},
+            {q: "Live with virtue.", a: "Stoic"},
+            {q: "Master your mind.", a: "Stoic"},
+            {q: "Ignore the noise.", a: "Anonymous"},
+            {q: "Be the leader.", a: "Anonymous"},
+            {q: "The work speaks.", a: "Anonymous"},
+            {q: "Evidence of effort.", a: "Anonymous"},
+            {q: "Visible results.", a: "Anonymous"},
+            {q: "Hidden labor.", a: "Anonymous"},
+            {q: "Quiet confidence.", a: "Anonymous"},
+            {q: "True grit.", a: "Anonymous"},
+            {q: "Unwavering will.", a: "Anonymous"},
+            {q: "Iron discipline.", a: "Anonymous"},
+            {q: "Steel resolve.", a: "Anonymous"},
+            {q: "Limitless potential.", a: "Anonymous"},
+            {q: "Forge your path.", a: "Anonymous"},
+            {q: "Sculpt your mind.", a: "Anonymous"},
+            {q: "The library is home.", a: "Anonymous"},
+            {q: "Books are weapons.", a: "Anonymous"},
+            {q: "Logic is the key.", a: "Anonymous"},
+            {q: "Reason is the guide.", a: "Anonymous"},
+            {q: "Hard work is the engine.", a: "Anonymous"},
+            {q: "Success is the fuel.", a: "Anonymous"},
+            {q: "Keep moving.", a: "Anonymous"},
+            {q: "Don't look back.", a: "Anonymous"},
+            {q: "Head down, work hard.", a: "Anonymous"},
+            {q: "Heart up, dream big.", a: "Anonymous"},
+            {q: "Exceed expectations.", a: "Anonymous"},
+            {q: "Over-deliver.", a: "Anonymous"},
+            {q: "Be the best.", a: "Anonymous"},
+            {q: "Leave a mark.", a: "Anonymous"},
+            {q: "Build a name.", a: "Anonymous"},
+            {q: "Earn respect.", a: "Anonymous"},
+            {q: "Self-respect first.", a: "Anonymous"},
+            {q: "Integrity always.", a: "Anonymous"},
+            {q: "The grind is life.", a: "Anonymous"},
+            {q: "Love the challenge.", a: "Anonymous"},
+            {q: "Chase the vision.", a: "Anonymous"},
+            {q: "Live the dream.", a: "Anonymous"},
+            {q: "Make it count.", a: "Anonymous"},
+            {q: "One life, one chance.", a: "Anonymous"},
+            {q: "Don't waste it.", a: "Anonymous"},
+            {q: "Focus.", a: "Anonymous"}
         ];
 
-        async function getQuote() {
-            const quoteEl = document.getElementById('quote');
-            const authorEl = document.getElementById('author');
-            const statusEl = document.getElementById('status');
-
-            try {
-                // We use a different proxy service (corsproxy.io) which is currently very stable
-                const response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://zenquotes.io/api/random'));
-                
-                if (!response.ok) throw new Error('Proxy error');
-                
-                const data = await response.json();
-                const quoteData = data[0];
-
-                if (quoteData && quoteData.q) {
-                    displayQuote(quoteData.q, quoteData.a, "Live Stream");
-                    return;
-                }
-            } catch (e) {
-                console.error("Fetch failed:", e);
-            }
-
-            // Fallback
-            const randomLocal = localQuotes[Math.floor(Math.random() * localQuotes.length)];
-            displayQuote(randomLocal.q, randomLocal.a, "Offline Mode");
-        }
-
-        function displayQuote(q, a, source) {
+        function nextQuote() {
             const container = document.getElementById('container');
-            document.getElementById('quote').innerText = `"${q}"`;
-            document.getElementById('author').innerText = `— ${a}`;
-            document.getElementById('status').innerText = `Status: ${source}`;
+            container.style.opacity = 0;
             
-            container.classList.remove('fade-in');
-            void container.offsetWidth; 
-            container.classList.add('fade-in');
+            setTimeout(() => {
+                const random = quotes[Math.floor(Math.random() * quotes.length)];
+                document.getElementById('quote').innerText = `"${random.q}"`;
+                document.getElementById('author').innerText = `— ${random.a}`;
+                container.style.opacity = 1;
+            }, 300);
         }
 
-        window.onload = getQuote;
+        // Initialize with a random quote
+        window.onload = nextQuote;
     </script>
 </body>
 </html>
